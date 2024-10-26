@@ -109,16 +109,58 @@
         .game-over {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             background-color: rgba(0, 0, 0, 0.8);
             color: red;
             font-size: 48px;
             text-align: center;
-            line-height: 100vh;
             z-index: 10;
+        }
+
+        .retry-button {
+            display: none;
+            position: fixed;
+            top: 60%; /* Abaixo do GAME OVER */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #e9eaf0;
+            color: #000;
+            padding: 15px 30px;
+            font-size: 24px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            z-index: 20;
+        }
+
+        .instructions-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            color: black;
+            padding: 20px;
+            border-radius: 15px;
+            z-index: 20;
+            text-align: center;
+        }
+
+        .instructions-modal h2 {
+            margin-bottom: 15px;
+        }
+
+        .modal-button {
+            background-color: #000;
+            color: #e9eaf0;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px;
         }
     </style>
 </head>
@@ -136,7 +178,7 @@
             </div>
             <div class="life-container">
                 <img src="./src/Imagens/player.png" alt="Vida" class="life-icon">
-                <h2 class="life-count">x3</h2>
+                <h2 class="life-count" id="life-count">x3</h2>
             </div>
         </div>
         <div class="panel">
@@ -159,6 +201,15 @@
     </div>
 
     <div class="game-over" id="game-over-message">GAME OVER</div>
+    <button class="retry-button" id="retry-button">TENTAR DE NOVO</button>
+
+    <div class="instructions-modal" id="instructions-modal">
+        <h2>Instruções do Jogo</h2>
+        <p>Você precisa clicar no Ralph que aparece em um dos quadrados. Cada acerto aumenta sua pontuação!</p>
+        <p>Se você clicar em um quadrado vazio, perderá uma vida!</p>
+        <button class="modal-button" id="accept-instructions">ACEITAR</button>
+        <button class="modal-button" id="cancel-instructions">CANCELAR</button>
+    </div>
 
     <script>
         const state = {
@@ -169,10 +220,14 @@
                 startButton: document.getElementById("start-game-button"),
                 gameContainer: document.getElementById("game-container"),
                 gameOverMessage: document.getElementById("game-over-message"),
+                instructionsModal: document.getElementById("instructions-modal"),
+                lifeCount: document.getElementById("life-count"),
+                retryButton: document.getElementById("retry-button"),
             },
             values: {
                 score: 0,
                 timeLeft: 30,
+                lives: 3,
                 interval: null,
             },
         };
@@ -183,14 +238,23 @@
         }
 
         function startGame() {
+            state.values.score = 0;
+            state.values.timeLeft = 30;
+            state.values.lives = 3;
+            state.view.timeScoreNumber.textContent = state.values.score;
+            state.view.timeLeftNumber.textContent = state.values.timeLeft;
+            state.view.lifeCount.textContent = `x${state.values.lives}`;
             state.view.startButton.style.display = "none";
+            state.view.instructionsModal.style.display = "none"; // Oculta o modal de instruções
             state.view.gameContainer.style.display = "flex";
             state.view.gameOverMessage.style.display = "none";
+            state.view.retryButton.style.display = "none"; // Oculta o botão de tentar novamente
 
             state.values.interval = setInterval(() => {
-                if (state.values.timeLeft <= 0) {
+                if (state.values.timeLeft <= 0 || state.values.lives <= 0) {
                     clearInterval(state.values.interval);
-                    alert("Tempo esgotado! Sua pontuação final é: " + state.values.score);
+                    state.view.gameOverMessage.style.display = "flex"; // Exibe a mensagem de Game Over
+                    state.view.retryButton.style.display = "block"; // Exibe o botão de tentar novamente
                     return;
                 }
 
@@ -222,7 +286,12 @@
                 state.view.timeScoreNumber.textContent = state.values.score;
                 playsound("./src/audios/hit.m4a"); // Som ao acertar
             } else {
-                gameOver();
+                state.values.lives--;
+                state.view.lifeCount.textContent = `x${state.values.lives}`;
+                playsound("./src/audios/errou.mp3"); // Som ao errar
+                if (state.values.lives <= 0) {
+                    gameOver();
+                }
             }
         }
 
@@ -230,13 +299,24 @@
             clearInterval(state.values.interval);
             playsound("./src/audios/errou.mp3"); // Som ao errar
             state.view.gameOverMessage.style.display = "flex"; // Exibe a mensagem de Game Over
+            state.view.retryButton.style.display = "block"; // Exibe o botão de tentar novamente
         }
+
+        // Funções para o modal de instruções
+        state.view.startButton.addEventListener("click", () => {
+            state.view.instructionsModal.style.display = "block"; // Exibe o modal de instruções
+        });
+
+        document.getElementById("accept-instructions").addEventListener("click", startGame);
+        document.getElementById("cancel-instructions").addEventListener("click", () => {
+            state.view.instructionsModal.style.display = "none"; // Oculta o modal de instruções
+        });
 
         state.view.squares.forEach(square => {
             square.addEventListener("click", handleSquareClick);
         });
 
-        state.view.startButton.addEventListener("click", startGame);
+        state.view.retryButton.addEventListener("click", startGame);
     </script>
 </body>
 </html>
