@@ -69,6 +69,9 @@
         .panel {
             padding: 0;
             margin: 50px 0 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .panel-row {
@@ -81,7 +84,7 @@
             height: 150px;
             width: 150px;
             background: aquamarine;
-            margin: 0;
+            margin: 20px;
             border: 1px solid black;
             position: relative;
         }
@@ -181,7 +184,7 @@
                 <h2 class="life-count" id="life-count">x3</h2>
             </div>
         </div>
-        <div class="panel">
+        <div class="panel" id="panel">
             <div class="panel-row">
                 <div class="square" id="1"></div>
                 <div class="square" id="2"></div>
@@ -223,6 +226,7 @@
                 instructionsModal: document.getElementById("instructions-modal"),
                 lifeCount: document.getElementById("life-count"),
                 retryButton: document.getElementById("retry-button"),
+                panel: document.getElementById("panel"),
             },
             values: {
                 score: 0,
@@ -249,10 +253,14 @@
             state.view.gameContainer.style.display = "flex";
             state.view.gameOverMessage.style.display = "none";
             state.view.retryButton.style.display = "none"; // Oculta o botão de tentar novamente
+            state.view.panel.style.display = "flex"; // Exibe o painel novamente
 
+            // Reinicia o temporizador
+            clearInterval(state.values.interval);
             state.values.interval = setInterval(() => {
                 if (state.values.timeLeft <= 0 || state.values.lives <= 0) {
                     clearInterval(state.values.interval);
+                    state.view.panel.style.display = "none"; // Oculta o painel com os quadrados
                     state.view.gameOverMessage.style.display = "flex"; // Exibe a mensagem de Game Over
                     state.view.retryButton.style.display = "block"; // Exibe o botão de tentar novamente
                     return;
@@ -298,11 +306,15 @@
         function gameOver() {
             clearInterval(state.values.interval);
             playsound("./src/audios/errou.mp3"); // Som ao errar
+            state.view.panel.style.display = "none"; // Oculta os quadrados
             state.view.gameOverMessage.style.display = "flex"; // Exibe a mensagem de Game Over
             state.view.retryButton.style.display = "block"; // Exibe o botão de tentar novamente
         }
 
-        // Funções para o modal de instruções
+        state.view.squares.forEach(square => {
+            square.addEventListener("click", handleSquareClick);
+        });
+
         state.view.startButton.addEventListener("click", () => {
             state.view.instructionsModal.style.display = "block"; // Exibe o modal de instruções
         });
@@ -310,10 +322,6 @@
         document.getElementById("accept-instructions").addEventListener("click", startGame);
         document.getElementById("cancel-instructions").addEventListener("click", () => {
             state.view.instructionsModal.style.display = "none"; // Oculta o modal de instruções
-        });
-
-        state.view.squares.forEach(square => {
-            square.addEventListener("click", handleSquareClick);
         });
 
         state.view.retryButton.addEventListener("click", startGame);
