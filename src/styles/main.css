@@ -1,0 +1,55 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Press Start 2P', cursive; /* Fonte desejada */
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+.menu {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    height: 90px;
+    width: 100%;
+    background-color: #000000;
+    color: #e9eaf0;
+}
+
+.time-left, .time-score {
+    color: rgb(251, 251, 251); /* Muda a cor do texto para vermelho */
+}
+
+.panel {
+    border: 1px solid rgb(247, 246, 246); /* Borda do painel */
+    padding: 0; /* Remova o preenchimento */
+    margin: 0; /* Remova margem, se necessário */
+}
+
+.panel-row {
+    display: flex; /* Para alinhar as caixinhas em linha */
+    justify-content: center; /* Centraliza as caixinhas */
+    margin: 0; /* Remove o espaço entre as linhas */
+}
+
+.square {
+    height: 150px;
+    width: 150px;
+    background: aquamarine; /* Cor de fundo dos quadrados */
+    margin: 0; /* Remove a margem entre os quadrados */
+    border: 1px solid black; /* Linha de separação em todas as bordas */
+}
+
+.enemy {
+    background-image: url(../src/Imagens/player.png); /* Caminho atualizado para a imagem */
+    background-size: cover; /* Faz com que a imagem cubra todo o quadrado */
+    background-position: center; /* Centraliza a imagem no quadrado */
+}
+
